@@ -1,0 +1,87 @@
+trigger:
+- main
+
+variables:
+  - group: terraform-azure-creds
+
+pool:
+  name: MahlzeitExpress
+
+stages:
+
+# ────────────
+# Stage: Validate & Plan
+# ────────────
+- stage: ValidateAndPlan
+  displayName: 'Terraform Validate & Plan'
+  jobs:
+  - job: ValidatePlan
+    displayName: 'Terraform Validate & Plan'
+    steps:
+    - checkout: self
+
+    - script: |
+        set -e
+        T_VERSION="1.4.0"
+        wget -q https://releases.hashicorp.com/terraform/${T_VERSION}/terraform_${T_VERSION}_linux_amd64.zip
+        unzip -q terraform_${T_VERSION}_linux_amd64.zip
+        sudo mv terraform /usr/local/bin/
+        terraform -version
+
+    - script: |
+        cd infra
+        terraform init
+        terraform validate
+        terraform plan -out=tfplan
+      displayName: 'Terraform Init, Validate, Plan'
+      env:
+        ARM_CLIENT_ID: $(ARM_CLIENT_ID)
+        ARM_CLIENT_SECRET: $(ARM_CLIENT_SECRET)
+        ARM_TENANT_ID: $(ARM_TENANT_ID)
+        ARM_SUBSCRIPTION_ID: $(ARM_SUBSCRIPTION_ID)
+        ARM_ACCESS_KEY: $(ARM_ACCESS_KEY)
+
+
+    - task: PublishPipelineArtifact@1
+      displayName: 'Publish Terraform Plan'
+      inputs:
+        targetPath: 'tfplan'
+        artifactName: 'tfplan'
+
+# ────────────
+# Stage: Apply
+# ────────────
+- stage: Apply
+  displayName: 'Terraform Apply'
+  dependsOn: ValidateAndPlan
+  condition: succeeded()
+  jobs:
+  - job: Apply
+    displayName: 'Terraform Apply'
+
+    steps:
+    - checkout: self
+
+    - download: current
+      artifact: tfplan
+
+    - script: |
+        set -e
+        T_VERSION="1.4.0"
+        wget -q https://releases.hashicorp.com/terraform/${T_VERSION}/terraform_${T_VERSION}_linux_amd64.zip
+        unzip -q terraform_${T_VERSION}_linux_amd64.zip
+        sudo mv terraform /usr/local/bin/
+        terraform -version
+
+    - script: |
+        terraform init
+        ls -l $(Pipeline.Workspace)/tfplan/
+        terraform apply -auto-approve $(Pipeline.Workspace)/tfplan/tfplan
+      displayName: 'Terraform Apply'
+      env:
+        ARM_CLIENT_ID: $(ARM_CLIENT_ID)
+        ARM_CLIENT_SECRET: $(ARM_CLIENT_SECRET)
+        ARM_TENANT_ID: $(ARM_TENANT_ID)
+        ARM_SUBSCRIPTION_ID: $(ARM_SUBSCRIPTION_ID)
+        ARM_ACCESS_KEY: $(ARM_ACCESS_KEY)
+

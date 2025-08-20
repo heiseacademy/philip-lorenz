@@ -1,0 +1,33 @@
+trigger:
+- main
+
+pool:
+  name: 'MahlzeitExpress'
+
+variables:
+- group: ansible-hosts
+
+steps:
+- script: |
+    sudo apt-get update
+    sudo apt-get install -y ansible
+  displayName: 'Ansible installieren'
+
+# Private Key als Secure File bereitstellen
+- task: DownloadSecureFile@1
+  name: fetchKey
+  inputs:
+    secureFile: 'id_ansible_devops'
+
+# Hosts-Datei dynamisch erzeugen mit IP & Key-File
+- script: |
+    chmod 600 $(fetchKey.secureFilePath)
+    echo "[targets]" > hosts
+    echo "$(HOST1_IP) ansible_user=azureuser ansible_ssh_private_key_file=$(fetchKey.secureFilePath)" >> hosts
+    cat hosts
+  displayName: 'hosts-Datei erzeugen'
+
+# Playbook ausführen
+- script: |
+    ansible-playbook -i hosts playbook.yml
+  displayName: 'Playbook ausführen'

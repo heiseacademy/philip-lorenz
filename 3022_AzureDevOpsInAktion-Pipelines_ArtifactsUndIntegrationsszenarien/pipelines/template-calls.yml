@@ -1,0 +1,32 @@
+trigger:
+  branches:
+    include: [ main ]
+
+pool:
+  name: MahlzeitExpress
+
+
+resources:
+  repositories:
+    - repository: templates
+      type: git
+      name: ado-pipeline-templates
+      ref: refs/heads/main
+
+stages:
+- stage: Vorbereitung
+  displayName: "🔧 Tools vorbereiten"
+  jobs:
+  - template: templates/install-tools.yml@templates
+    parameters:
+      tools:
+        - curl
+        - jq
+        - git
+        - yamllint
+
+- stage: Lint
+  displayName: "🧹 YAML prüfen"
+  dependsOn: Vorbereitung
+  jobs:
+  - template: templates/yaml-linter.yml@templates

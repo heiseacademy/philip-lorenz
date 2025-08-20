@@ -1,0 +1,90 @@
+trigger:
+- main
+
+variables:
+  azureSubscription: 'azure'
+  webAppName: 'mahlzeitexpress'
+  rootFolder: $(System.DefaultWorkingDirectory)
+
+pool:
+  name: MahlzeitExpress
+
+stages:
+- stage: Build
+  displayName: Build stage
+  variables:
+    phpVersion: '8.3'
+  jobs:
+  - job: BuildJob
+    displayName: Build & Package
+    steps:
+    # — PHP Version setzen (nur nötig auf Self-Hosted) —
+    - script: |
+        sudo update-alternatives --set php /usr/bin/php$(phpVersion)
+        sudo update-alternatives --set phar /usr/bin/phar$(phpVersion)
+        sudo update-alternatives --set phpdbg /usr/bin/phpdbg$(phpVersion)
+        sudo update-alternatives --set php-cgi /usr/bin/php-cgi$(phpVersion)
+        sudo update-alternatives --set phar.phar /usr/bin/phar.phar$(phpVersion)
+        php -v
+      displayName: 'Use PHP version $(phpVersion)'
+
+    # — Composer Install im wwwroot-Verzeichnis —
+    - script: composer install --no-interaction --prefer-dist
+      workingDirectory: $(rootFolder)/wwwroot
+      displayName: 'Composer install'
+
+    # — zip Utility sicherstellen —
+    - task: Bash@3
+      displayName: 'Ensure zip is installed'
+      inputs:
+        targetType: inline
+        script: |
+          sudo apt-get update
+          sudo apt-get install -y zip
+
+    # — wwwroot packen —
+    - task: ArchiveFiles@2
+      displayName: 'Archive wwwroot'
+      inputs:
+        rootFolderOrFile: '$(rootFolder)/wwwroot'
+        includeRootFolder: false
+        archiveType: zip
+        archiveFile: '$(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip'
+        replaceExistingArchive: true
+
+    # — Pipeline-Artifact hochladen —
+    - upload: $(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip
+      displayName: 'Upload package'
+      artifact: drop
+
+- stage: Deploy
+  displayName: 'Deploy Web App'
+  dependsOn: Build
+  condition: succeeded()
+  jobs:
+  - job: DeployJob
+    displayName: 'Deploy Azure Web App'
+    steps:
+    # — Azure CLI: Web App sicherstellen —
+    - task: AzureCLI@2
+      displayName: 'Ensure Web App exists'
+      inputs:
+        azureSubscription: $(azureSubscription)
+        scriptType: bash
+        scriptLocation: inlineScript
+        inlineScript: |
+          az group create --name myResourceGroup --location westeurope
+          az appservice plan create --name myPlan --resource-group myResourceGroup --sku B1 --is-linux || true
+          az webapp create --resource-group myResourceGroup --plan myPlan --name $(webAppName) --runtime "PHP|8.3" || true
+
+    # — Artefakt herunterladen —
+    - download: current
+      artifact: drop
+
+    # — ZIP auf die Web App deployen —
+    - task: AzureWebApp@1
+      displayName: 'Deploy Azure Web App'
+      inputs:
+        azureSubscription: $(azureSubscription)
+        appName: $(webAppName)
+        package: $(Pipeline.Workspace)/drop/$(Build.BuildId).zip

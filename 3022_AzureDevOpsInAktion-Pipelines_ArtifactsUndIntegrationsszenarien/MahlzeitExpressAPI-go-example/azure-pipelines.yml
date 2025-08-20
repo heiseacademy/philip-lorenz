@@ -1,0 +1,42 @@
+trigger:
+  branches:
+    include:
+      - main
+
+pool:
+  name: 'MahlzeitExpress'
+
+variables:
+  appName: 'mahlzeitexpress'
+  dockerRegistryServiceConnection: 'ContainerRegistry' 
+  dockerRegistry: 'heiseacademy.azurecr.io'       
+  imageRepository: 'mahlzeitexpress-api'
+  imageTag: '$(Build.BuildId)'
+
+steps:
+- checkout: self
+
+- task: GoTool@0
+  inputs:
+    version: '1.20.13' # oder aktueller, aber auch im Dockerfile anpassen
+
+- script: |
+    go version
+    go mod tidy
+    go test -v ./...
+  displayName: 'Go Tests'
+
+# Build and Push Docker image
+- task: Docker@2
+  displayName: Build and Push Docker Image
+  inputs:
+    containerRegistry: '$(dockerRegistryServiceConnection)'
+    repository: '$(imageRepository)'
+    command: 'buildAndPush'
+    Dockerfile: '**/Dockerfile'
+    tags: |
+      $(imageTag)
+      latest
+    buildContext: '$(Build.SourcesDirectory)'
+    arguments: |
+      --build-arg GIT_COMMIT=$(Build.SourceVersion)

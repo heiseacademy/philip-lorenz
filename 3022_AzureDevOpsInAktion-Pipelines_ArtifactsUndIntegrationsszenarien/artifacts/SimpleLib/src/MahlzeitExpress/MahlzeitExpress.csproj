@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <PackageId>MahlzeitExpress</PackageId>
+    <Version>1.0.2</Version>
+    <Authors>Philip</Authors>
+    <Company>MahlzeitExpress</Company>
+    <Description>Unsere Bibliothek für das Projekt MahlzeitExpress</Description>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+  </PropertyGroup>
+
+</Project>

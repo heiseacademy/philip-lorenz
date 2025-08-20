@@ -1,0 +1,81 @@
+trigger:
+  branches:
+    include:
+      - main
+      - develop
+
+# ---------- Parameter ----------
+parameters:
+- name: regions
+  type: object
+  default:
+    - germany-west
+    - germany-north
+    - westeurope
+
+# ---------- Variablen ----------
+variables:
+- name: ENV_NAME          # Fallback
+  value: unknown
+
+# Variable Groups abhängig vom Branch
+- ${{ if eq(variables['Build.SourceBranchName'], 'main') }}:
+  - group: Production      # enthält TARGET_URL, LOGIN_USER, LOGIN_PASS, ENV_NAME=production
+
+- ${{ if eq(variables['Build.SourceBranchName'], 'develop') }}:
+  - group: Development     # enthält TARGET_URL, LOGIN_USER, LOGIN_PASS, ENV_NAME=development
+
+
+pool:
+  name: MahlzeitExpress
+# ---------- Stages ----------
+stages:
+# --- Build -------------------------------------------------------
+- stage: Build
+  jobs:
+  - job: BuildJob
+    steps:
+    - script: |
+        echo "🔧 Build läuft im Branch: $(Build.SourceBranchName)"
+        echo "🌍 ENV_NAME: $(ENV_NAME)"
+        echo "🌐 TARGET_URL: $(TARGET_URL)"
+      displayName: "Branch‑ & Env‑Info"
+
+# --- Test --------------------------------------------------------
+- stage: Test
+  dependsOn: Build
+  condition: succeeded('Build')
+  jobs:
+  - job: TestJob
+    steps:
+    - script: |
+        echo "🧪 Starte Tests gegen $(TARGET_URL)"
+        # Beispielhafter Curl / Health‑Check
+        ping -c 6 $(TARGET_URL)
+      env:
+        LOGIN_USER: $(LOGIN_USER)
+        LOGIN_PASS: $(LOGIN_PASS)
+      displayName: "API‑Health‑Check"
+
+# --- Deploy ------------------------------------------------------
+- stage: Deploy
+  dependsOn: Test
+  condition: and(succeeded('Test'), eq(variables['ENV_NAME'], 'production'))
+  jobs:
+  - job: DeployJob
+    steps:
+    - script: |
+        echo "🚀 Deployment‑Start auf $(TARGET_URL)"
+      displayName: "Deployment‑Start"
+
+    # Schleife: Deployment in mehrere Regionen
+    - ${{ each region in parameters.regions }}:
+      - bash: |
+          echo "🔄 Deploye nach ${{ region }}"
+          # Beispiel‑Befehl (hier nur Ausgabe):
+          echo "curl --user $(LOGIN_USER):***** $(TARGET_URL)/deploy?region=${{ region }}"
+        displayName: "Deployment nach ${{ region }}"
+        env:
+          LOGIN_USER: $(LOGIN_USER)
+          LOGIN_PASS: $(LOGIN_PASS)
+          TARGET_URL: $(TARGET_URL)

@@ -1,0 +1,23 @@
+---
+- name: Beispiel Playbook für Azure DevOps Pipeline
+  hosts: targets
+  become: true
+  tasks:
+    - name: Aktuelles Datum und Hostname anzeigen
+      ansible.builtin.shell: "echo $(date) && hostname"
+      register: result
+
+    - name: Ausgabe anzeigen
+      ansible.builtin.debug:
+        var: result.stdout
+
+    - name: Installiere curl
+      ansible.builtin.package:
+        name: curl
+        state: present
+
+    - name: Erstelle eine Datei im Home-Verzeichnis
+      ansible.builtin.file:
+        path: ~/pipeline_war_hier.txt
+        state: touch
+        mode: '0644'

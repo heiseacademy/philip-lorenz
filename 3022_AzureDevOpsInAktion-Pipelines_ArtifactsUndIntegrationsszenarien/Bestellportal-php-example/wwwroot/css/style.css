@@ -1,0 +1,134 @@
+/* ——— Variablen & Reset ——— */
+:root {
+    --clr-primary:   #2a3d66;
+    --clr-accent:    #f39c12;
+    --clr-bg:        #fafafa;
+    --clr-card-bg:   #fff;
+    --clr-text:      #333;
+    --radius:        0.5rem;
+    --spacing:       1rem;
+    --max-width:     1200px;
+  }
+  * { box-sizing: border-box; margin:0; padding:0; }
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--clr-bg);
+    color: var(--clr-text);
+    line-height: 1.5;
+  }
+  
+  /* ——— Container ——— */
+  .container {
+    width: 90%;
+    max-width: var(--max-width);
+    margin: 0 auto;
+    padding: var(--spacing) 0;
+  }
+  
+  /* ——— Header ——— */
+  .site-header {
+    background: var(--clr-primary);
+    color: #fff;
+    padding: calc(var(--spacing)*1.5) 0;
+    text-align: center;
+  }
+  .site-header .logo {
+    font-size: 2rem;
+    font-weight: 600;
+  }
+  .site-header .tagline {
+    margin-top: 0.5rem;
+    font-weight: 400;
+  }
+  
+  /* ——— Hauptbereich ——— */
+  .site-main {
+    padding-bottom: var(--spacing);
+  }
+  
+  /* ——— Speisekarte ——— */
+  .menu-section h2 {
+    font-size: 1.75rem;
+    margin-bottom: var(--spacing);
+  }
+  .menu-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px,1fr));
+    gap: var(--spacing);
+  }
+  .meal-card {
+    background: var(--clr-card-bg);
+    border-radius: var(--radius);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    transition: transform 0.2s ease;
+  }
+  .meal-card:hover {
+    transform: translateY(-4px);
+  }
+  .meal-card-content {
+    flex: 1;
+    padding: var(--spacing);
+  }
+  .meal-card-content h3 {
+    font-size: 1.25rem;
+    margin-bottom: 0.5rem;
+  }
+  .meal-card-content .price {
+    margin-top: 0.75rem;
+    font-weight: 600;
+    color: var(--clr-accent);
+  }
+  
+  /* ——— Bestell-Formular ——— */
+  .order-form {
+    background: #f7f7f7;
+    padding: var(--spacing);
+    display: grid;
+    gap: 0.75rem;
+  }
+  .order-form input {
+    padding: 0.5rem;
+    border: 1px solid #ccc;
+    border-radius: var(--radius);
+    font-size: 0.95rem;
+  }
+  .order-form button {
+    padding: 0.75rem;
+    background: var(--clr-accent);
+    border: none;
+    border-radius: var(--radius);
+    color: #fff;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s ease;
+  }
+  .order-form button:hover {
+    background: #d78b0c;
+  }
+  
+  /* ——— Bestell-Bestätigung ——— */
+  .order-section {
+    text-align: center;
+    padding: var(--spacing)*2 0;
+  }
+  .order-success h2 {
+    color: var(--clr-accent);
+    margin-bottom: 1rem;
+  }
+  .order-fail h2 {
+    color: #c0392b;
+    margin-bottom: 1rem;
+  }
+  
+  /* ——— Footer ——— */
+  .site-footer {
+    background: var(--clr-primary);
+    color: #fff;
+    text-align: center;
+    padding: var(--spacing) 0;
+    margin-top: var(--spacing);
+  }
+  

@@ -1,0 +1,11 @@
+# Läuft über alle .yml-Dateien im Repo und prüft auf korrekte Syntax
+jobs:
+- job: LintJob
+  steps:
+    - script: |
+        echo "🔍 Lint YAML-Dateien:"
+        for f in $(find . -name '*.yml'); do
+          echo "📝 Prüfe $f"
+          yamllint "$f"
+        done
+      displayName: "🔎 YAML Lint ausführen"

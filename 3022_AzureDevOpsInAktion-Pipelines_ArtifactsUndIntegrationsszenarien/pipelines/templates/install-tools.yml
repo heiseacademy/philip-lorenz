@@ -1,0 +1,19 @@
+parameters:
+  - name: tools
+    type: object
+    default:
+      - curl
+      - jq
+
+jobs:
+- job: InstallTools
+  steps:
+    - script: sudo apt-get update -y
+      displayName: "📦 apt update"
+
+    # Schleife über die Tools – jedes Tool als eigener Script-Step
+    - ${{ each tool in parameters.tools }}:
+        - script: |
+            echo "➡️  Installiere ${{ tool }}"
+            sudo apt-get install -y ${{ tool }}
+          displayName: "🔧 Installiere ${{ tool }}"

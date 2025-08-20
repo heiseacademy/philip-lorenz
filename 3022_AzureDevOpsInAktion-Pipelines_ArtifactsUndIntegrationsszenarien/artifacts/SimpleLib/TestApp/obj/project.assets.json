@@ -1,0 +1,127 @@
+{
+  "version": 3,
+  "targets": {
+    "net8.0": {
+      "MahlzeitExpress/1.0.2": {
+        "type": "package",
+        "compile": {
+          "lib/net6.0/MahlzeitExpress.dll": {}
+        },
+        "runtime": {
+          "lib/net6.0/MahlzeitExpress.dll": {}
+        }
+      }
+    }
+  },
+  "libraries": {
+    "MahlzeitExpress/1.0.2": {
+      "sha512": "SfJXi+6WsLiqR8zA5AYYEuGgQvSVYuPoeOPvuyysBMCh1OPJYbaxS0Pu98HG3ht022YvrBRVewe6+a9U6OvSHw==",
+      "type": "package",
+      "path": "mahlzeitexpress/1.0.2",
+      "files": [
+        ".nupkg.metadata",
+        "lib/net6.0/MahlzeitExpress.dll",
+        "mahlzeitexpress.1.0.2.nupkg.sha512",
+        "mahlzeitexpress.nuspec"
+      ]
+    }
+  },
+  "projectFileDependencyGroups": {
+    "net8.0": [
+      "MahlzeitExpress >= 1.0.2"
+    ]
+  },
+  "packageFolders": {
+    "/Users/heise/.nuget/packages/": {}
+  },
+  "project": {
+    "version": "1.0.0",
+    "restore": {
+      "projectUniqueName": "/Users/heise/code/heiseacademy-azuredevops/artifacts/SimpleLib/TestApp/TestApp.csproj",
+      "projectName": "TestApp",
+      "projectPath": "/Users/heise/code/heiseacademy-azuredevops/artifacts/SimpleLib/TestApp/TestApp.csproj",
+      "packagesPath": "/Users/heise/.nuget/packages/",
+      "outputPath": "/Users/heise/code/heiseacademy-azuredevops/artifacts/SimpleLib/TestApp/obj/",
+      "projectStyle": "PackageReference",
+      "configFilePaths": [
+        "/Users/heise/code/heiseacademy-azuredevops/artifacts/SimpleLib/NuGet.Config",
+        "/Users/heise/.nuget/NuGet/NuGet.Config"
+      ],
+      "originalTargetFrameworks": [
+        "net8.0"
+      ],
+      "sources": {
+        "/opt/homebrew/Cellar/dotnet/9.0.101/libexec/library-packs": {},
+        "https://api.nuget.org/v3/index.json": {},
+        "https://pkgs.dev.azure.com/heiseacademy-azuredevops/MahlzeitExpress/_packaging/MahlzeitExpress@release/nuget/v3/index.json": {}
+      },
+      "frameworks": {
+        "net8.0": {
+          "targetAlias": "net8.0",
+          "projectReferences": {}
+        }
+      },
+      "warningProperties": {
+        "warnAsError": [
+          "NU1605"
+        ]
+      },
+      "restoreAuditProperties": {
+        "enableAudit": "true",
+        "auditLevel": "low",
+        "auditMode": "direct"
+      },
+      "SdkAnalysisLevel": "9.0.100"
+    },
+    "frameworks": {
+      "net8.0": {
+        "targetAlias": "net8.0",
+        "dependencies": {
+          "MahlzeitExpress": {
+            "target": "Package",
+            "version": "[1.0.2, )"
+          }
+        },
+        "imports": [
+          "net461",
+          "net462",
+          "net47",
+          "net471",
+          "net472",
+          "net48",
+          "net481"
+        ],
+        "assetTargetFallback": true,
+        "warn": true,
+        "downloadDependencies": [
+          {
+            "name": "Microsoft.AspNetCore.App.Ref",
+            "version": "[8.0.11, 8.0.11]"
+          },
+          {
+            "name": "Microsoft.NETCore.App.Host.osx-arm64",
+            "version": "[8.0.11, 8.0.11]"
+          },
+          {
+            "name": "Microsoft.NETCore.App.Ref",
+            "version": "[8.0.11, 8.0.11]"
+          }
+        ],
+        "frameworkReferences": {
+          "Microsoft.NETCore.App": {
+            "privateAssets": "all"
+          }
+        },
+        "runtimeIdentifierGraphPath": "/opt/homebrew/Cellar/dotnet/9.0.101/libexec/sdk/9.0.101/PortableRuntimeIdentifierGraph.json"
+      }
+    }
+  },
+  "logs": [
+    {
+      "code": "NU1900",
+      "level": "Warning",
+      "warningLevel": 1,
+      "message": "Error occurred while getting package vulnerability data: Unable to load the service index for source https://pkgs.dev.azure.com/heiseacademy-azuredevops/MahlzeitExpress/_packaging/MahlzeitExpress@release/nuget/v3/index.json."
+    }
+  ]
+}

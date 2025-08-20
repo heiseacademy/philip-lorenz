@@ -1,0 +1,62 @@
+trigger:
+  branches:
+    include: [ main ]
+
+pool:
+  name: MahlzeitExpress
+
+stages:
+# 🏗️ STAGE 1: Build mit Caching
+- stage: Build
+  displayName: "📦 Build & Cache"
+  jobs:
+    - job: BuildJob
+      steps:
+        - task: NodeTool@0
+          inputs:
+            versionSpec: '18.x'
+          displayName: "📥 Node.js installieren"
+
+        - task: Cache@2
+          inputs:
+            key: 'node | "$(Agent.OS)" | my-node-app/package-lock.json'
+            restoreKeys: |
+              node | "$(Agent.OS)"
+            path: $(Build.SourcesDirectory)/my-node-app/node_modules
+          displayName: "🔄 Cache node_modules"
+
+        - script: |
+            cd my-node-app
+            npm ci
+          displayName: "📦 npm ci ausführen"
+
+        - script: echo "✔️ Build abgeschlossen"
+          displayName: "✅ Build done"
+
+# 🧪 STAGE 2: Tests
+- stage: Test
+  displayName: "🧪 Testen"
+  dependsOn: Build
+  jobs:
+    - job: TestJob
+      steps:
+        - task: NodeTool@0
+          inputs:
+            versionSpec: '18.x'
+          displayName: "📥 Node.js installieren"
+
+        - script: |
+            cd my-node-app
+            npm test
+          displayName: "🧪 npm test ausführen"
+
+# 🚀 STAGE 3: Deployment (Simuliert)
+- stage: Deploy
+  displayName: "🚀 Deployment"
+  dependsOn: Test
+  condition: succeeded()
+  jobs:
+    - job: DeployJob
+      steps:
+        - script: echo "🚀 Deployment erfolgreich abgeschlossen"
+          displayName: "📦 Simulierter Deploy"

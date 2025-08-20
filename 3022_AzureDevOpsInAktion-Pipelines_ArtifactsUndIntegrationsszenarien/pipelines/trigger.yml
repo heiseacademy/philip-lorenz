@@ -1,0 +1,70 @@
+trigger:
+  branches:
+    include:
+      - main
+      - develop
+      - feature/*
+  paths:
+    include:
+      - test/*
+
+
+
+# ---------- Zeit­gesteuerter Trigger (Nightly) ----------
+schedules:
+- cron: "*/2 * * * *"         # alle 2 Minuten
+  displayName: "Alle 2 Minuten"
+  branches:
+    include: [ main ]
+  always: true
+
+
+# ---------- Pipeline‑Completion ----------
+resources:
+  pipelines:
+  - pipeline: kontrollstrukturen_build        
+    source: Kontrollstrukturen                
+    branch: refs/heads/main                   
+    trigger:
+      branches:
+        include:
+          - main
+
+
+pool:
+  name: MahlzeitExpress
+
+# ---------- Stages ----------
+stages:
+# --- Build -------------------------------------------------------
+- stage: Build
+  jobs:
+  - job: BuildJob
+    steps:
+    # ---- Run‑Info: Grund und Quelle ausgeben ----
+    - script: |
+        echo "🏁 Pipeline‑Startgrund: $(Build.Reason)"
+        echo "🔀 Quelle:            $(Build.SourceBranch)"
+        echo "🔖 Commit‑Msg:        $(Build.SourceVersionMessage)"
+      displayName: "Run‑Info"
+
+
+# --- Test --------------------------------------------------------
+- stage: Test
+  dependsOn: Build
+  condition: succeeded('Build')
+  jobs:
+  - job: TestJob
+    steps:
+    - script: echo "🧪 Starte Tests…"
+      displayName: "Unit‑Tests"
+
+# --- Deploy (läuft nur auf main) --------------------------------
+- stage: Deploy
+  dependsOn: Test
+  condition: and(succeeded('Test'), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
+  jobs:
+  - job: ReleaseJob
+    steps:
+    - script: echo "🚀 Deployment auf PROD"
+      displayName: "Release"

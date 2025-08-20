@@ -1,0 +1,12 @@
+{
+    "name": "mahlzeit-express/php-app",
+    "description": "Einfache PHP-Anwendung für MahlzeitExpress",
+    "require": {
+        "php": "^7.4 || ^8.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "MahlzeitExpress\\": "src/"
+        }
+    }
+}

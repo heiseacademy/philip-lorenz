@@ -1,0 +1,45 @@
+trigger:
+  branches:
+    include: [ main ]
+
+stages:
+# 🏗️ BUILD ----------------------------------------------
+- stage: Build
+  pool:
+    name: MahlzeitExpress
+  jobs:
+    - job: Build
+      steps:
+        - script: echo "📦 Kompiliere Projekt"
+
+# 🧪 TEST (läuft nach Build) ----------------------------
+- stage: Test
+  dependsOn: Build
+  pool:
+    name: MahlzeitExpress
+  jobs:
+    - job: RunTests
+      steps:
+        - script: echo "🧪 Führe Unit-Tests aus"
+
+# 🔍 LINT (läuft parallel zu Test) ----------------------
+- stage: Lint
+  dependsOn: Build         # nur Build nötig
+  pool:
+    name: MahlzeitExpress
+  jobs:
+    - job: RunLint
+      steps:
+        - script: echo "🔍 Linter prüft Codequalität"
+
+# 🚀 DEPLOY (wartet auf Test und Lint) ------------------
+- stage: Deploy
+  dependsOn:
+    - Test
+    - Lint
+  pool:
+    name: MahlzeitExpress
+  jobs:
+    - job: Release
+      steps:
+        - script: echo "🚀 Deployment auf PROD"

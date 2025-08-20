@@ -1,0 +1,77 @@
+
+parameters:
+  - name: environment
+    type: string
+    default: 'staging'
+    values:
+      - staging
+      - production
+
+  - name: dockerBuild
+    type: boolean
+    default: false
+
+  - name: tags
+    type: object
+    default:
+      - frontend
+      - api
+
+variables:
+  version: '1.0.$(Build.BuildId)'
+  test: "Test"
+
+pool:
+  name: MahlzeitExpress
+
+jobs:
+- job: ShowDifferences
+  displayName: "Vergleich Parameter vs. Variablen"
+
+  steps:
+    - script: |
+        echo "▶ Umgebung via Parameter: ${{ parameters.environment }}"
+      displayName: "Parameter anzeigen"
+
+    - script: |
+        echo ""
+      displayName: "Test: ${{parameters.environment}} | $(test) | ${{variables.test}}"
+
+    - script: |
+        echo "▶ Tags via Parameter-Objekt:"
+        for tag in "${{ parameters.tags[0] }}" "${{ parameters.tags[1] }}"; do
+          echo "- $tag"
+        done
+      displayName: "Parameter-Array anzeigen"
+
+    - script: |
+        echo "▶ Docker-Build aktiviert? ${{ parameters.dockerBuild }}"
+      displayName: "Boolean-Parameter anzeigen"
+
+    - script: |
+        echo "▶ Version via Variable: $(version)"
+      displayName: "Variable anzeigen"
+
+    - script: |
+        echo "##vso[task.setvariable variable=deploymentResult]success"
+        echo "Variable deploymentResult wurde zur Laufzeit gesetzt."
+      displayName: "Variable dynamisch setzen"
+
+    - script: |
+        echo "▶ Ergebnis: $(deploymentResult)"
+      displayName: "Dynamische Variable anzeigen"
+
+    - script: |
+        if [ "${{ parameters.environment }}" = "production" ]; then
+          echo "⚠️ Deploy to PROD verboten in dieser Demo."
+          exit 1
+        else
+          echo "✅ Staging-Deployment erlaubt."
+        fi
+      displayName: "Compile-Time Entscheidungslogik via Parameter"
+
+    - script: |
+        if [ "$(deploymentResult)" = "success" ]; then
+          echo "🎉 Erfolgreicher Durchlauf"
+        fi
+      displayName: "Runtime-Entscheidung via gesetzter Variable"

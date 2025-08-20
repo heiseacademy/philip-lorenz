@@ -1,0 +1,29 @@
+trigger:
+  branches:
+    include:
+      - main
+
+pool:
+  name: MahlzeitExpress
+
+variables:
+  buildConfiguration: 'Release'
+  projectPath: 'artifacts/SimpleLib/TestApp/TestApp.csproj'
+
+steps:
+- task: UseDotNet@2
+  inputs:
+    packageType: 'sdk'
+    version: '8.0.x'
+
+- task: NuGetAuthenticate@1
+  displayName: 'Authenticate with Azure Artifacts'
+
+- script: dotnet restore $(projectPath)
+  displayName: 'Restore from Azure Artifacts'
+
+- script: dotnet build $(projectPath) --configuration $(buildConfiguration)
+  displayName: 'Build TestApp'
+
+- script: dotnet run --project $(projectPath) --configuration $(buildConfiguration)
+  displayName: 'Run TestApp to verify output'

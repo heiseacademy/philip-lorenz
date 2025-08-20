@@ -1,0 +1,12 @@
+/Users/heise/code/pipeline-test/artifacts/SimpleLib/src/MyLibrary/bin/Debug/net6.0/MyLibrary.deps.json
+/Users/heise/code/pipeline-test/artifacts/SimpleLib/src/MyLibrary/bin/Debug/net6.0/MyLibrary.dll
+/Users/heise/code/pipeline-test/artifacts/SimpleLib/src/MyLibrary/bin/Debug/net6.0/MyLibrary.pdb
+/Users/heise/code/pipeline-test/artifacts/SimpleLib/src/MyLibrary/obj/Debug/net6.0/MyLibrary.GeneratedMSBuildEditorConfig.editorconfig
+/Users/heise/code/pipeline-test/artifacts/SimpleLib/src/MyLibrary/obj/Debug/net6.0/MyLibrary.AssemblyInfoInputs.cache
+/Users/heise/code/pipeline-test/artifacts/SimpleLib/src/MyLibrary/obj/Debug/net6.0/MyLibrary.AssemblyInfo.cs
+/Users/heise/code/pipeline-test/artifacts/SimpleLib/src/MyLibrary/obj/Debug/net6.0/MyLibrary.csproj.CoreCompileInputs.cache
+/Users/heise/code/pipeline-test/artifacts/SimpleLib/src/MyLibrary/obj/Debug/net6.0/MyLibrary.sourcelink.json
+/Users/heise/code/pipeline-test/artifacts/SimpleLib/src/MyLibrary/obj/Debug/net6.0/MyLibrary.dll
+/Users/heise/code/pipeline-test/artifacts/SimpleLib/src/MyLibrary/obj/Debug/net6.0/refint/MyLibrary.dll
+/Users/heise/code/pipeline-test/artifacts/SimpleLib/src/MyLibrary/obj/Debug/net6.0/MyLibrary.pdb
+/Users/heise/code/pipeline-test/artifacts/SimpleLib/src/MyLibrary/obj/Debug/net6.0/ref/MyLibrary.dll

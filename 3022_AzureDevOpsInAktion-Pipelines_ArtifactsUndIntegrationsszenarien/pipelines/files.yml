@@ -1,0 +1,45 @@
+
+pool:
+  name: MahlzeitExpress
+
+stages:
+- stage: BuildConfig
+  displayName: "Konfigurationsdatei erzeugen"
+  jobs:
+    - job: CreateConfig
+      steps:
+        - script: |
+            echo "Erzeuge Konfigurationsdatei..."
+            echo "DB_HOST=localhost" > config.env
+            echo "DB_PASSWORD=topsecret" >> config.env
+          displayName: "Datei config.env erzeugen"
+
+        - task: PublishPipelineArtifact@1
+          inputs:
+            targetPath: 'config.env'
+            artifact: 'envfile'
+            publishLocation: 'pipeline'
+          displayName: "Datei als Pipeline Artifact veröffentlichen"
+
+        - script: rm config.env
+          displayName: "Temporäre Datei entfernen"
+
+- stage: UseConfig
+  displayName: "Konfigurationsdatei verwenden"
+  dependsOn: BuildConfig
+  jobs:
+    - job: ReadConfig
+      steps:
+        - task: DownloadPipelineArtifact@2
+          inputs:
+            artifact: 'envfile'
+            path: '$(Pipeline.Workspace)/env'
+          displayName: "Pipeline-Artifact herunterladen"
+
+        - script: |
+            echo "Inhalt der Konfigurationsdatei (Passwort wird ausgeblendet):"
+            cat $(Pipeline.Workspace)/env/config.env | sed 's/DB_PASSWORD=.*/DB_PASSWORD=*** (ausgeblendet) ***/'
+          displayName: "Datei verwenden und zensieren"
+
+        - script: rm -f $(Pipeline.Workspace)/env/config.env
+          displayName: "Cleanup: Datei sicher löschen"
