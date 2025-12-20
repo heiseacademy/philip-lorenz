@@ -1,0 +1,36 @@
+---
+- name: First Mini Playbook
+  hosts: windows
+  gather_facts: yes
+
+  tasks:
+    - name: TestConnection
+      ansible.windows.win_ping:
+
+    - name: Show hostname and cores
+      ansible.builtin.debug:
+        msg: >
+          {{ ansible_facts['hostname'] }}
+          has {{ ansible_facts['processor_cores'] }} cores
+
+    - name: Ensure C:\Temp exists
+      ansible.windows.win_file:
+        path: C:\Temp
+        state: directory
+
+    - name: Create test file
+      ansible.windows.win_copy:
+        content: |
+          This file was created by ansible
+          Host: {{ ansible_facts['hostname'] }}
+          Date: {{ ansible_facts['date_time']['date'] }}
+        dest: C:\Temp\ansible-test.txt
+    
+    - name: Check WinRM service
+      ansible.windows.win_service:
+        name: WinRM
+      register: winrm_service
+    
+    - name: Show RinRM service status
+      ansible.builtin.debug:
+        msg: "WinRM service is {{ winrm_service.state }}"
