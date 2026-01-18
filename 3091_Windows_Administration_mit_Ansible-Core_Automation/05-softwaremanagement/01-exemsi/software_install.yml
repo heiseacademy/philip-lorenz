@@ -1,0 +1,39 @@
+---
+- name: Manuelle Software Installation (EXE/MSI)
+  hosts: windows
+  gather_facts: false
+
+  tasks:
+    # 1. Vorbereitung: Temp-Verzeichnis sicherstellen
+    - name: Temp-Verzeichnis erstellen
+      ansible.windows.win_file:
+        path: C:\Temp
+        state: directory
+
+    # 2. Download der Installer (Loop)
+    - name: Installer herunterladen
+      ansible.windows.win_get_url:
+        url: "{{ item.url }}"
+        dest: "C:\\Temp\\{{ item.filename }}"
+      loop:
+        - { url: 'https://7-zip.org/a/7z2501-x64.msi', filename: '7z2501-x64.msi' }
+        - { url: 'https://github.com/notepad-plus-plus/notepad-plus-plus/releases/download/v8.8.5/npp.8.8.5.Installer.x64.exe', filename: 'npp.8.8.5.Installer.x64.exe' }
+
+    # 3. MSI Installation (7-Zip)
+    # Szenario: Wir kennen die ID noch nicht -> Task ist "changed" bei jedem Lauf.
+    - name: 7-Zip 25.01 installieren
+      ansible.windows.win_package:
+        path: C:\Temp\7z2501-x64.msi
+        state: present
+        arguments: /qn /norestart
+        # TODO: Nach erstem Lauf GUID ermitteln und hier eintragen!
+        product_id: '{23170F69-40C1-2702-2501-000001000000}'
+
+    # 4. EXE Installation (Notepad++)
+    # Szenario: ID ist der DisplayName in der Softwareliste.
+    - name: Notepad++ 8.8.5 installieren
+      ansible.windows.win_package:
+        path: C:\Temp\npp.8.8.5.Installer.x64.exe
+        product_id: 'Notepad++ (64-bit x64)'
+        state: present
+        arguments: /S

@@ -1,0 +1,10 @@
+---
+- name: Baseline Tasks
+  ansible.builtin.import_tasks: baseline.yml
+  tags:
+    - baseline
+
+- name: Compliance Tasks
+  ansible.builtin.import_tasks: compliance.yml
+  tags:
+    - compliance

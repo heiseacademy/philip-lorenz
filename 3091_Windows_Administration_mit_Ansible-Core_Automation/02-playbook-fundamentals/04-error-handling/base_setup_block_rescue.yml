@@ -1,0 +1,75 @@
+---
+- name: Base setup for HelpDeskPro servers (with error handling)
+  hosts: windows
+  gather_facts: true   # brauchen wir für ansible_facts['date_time']
+
+  vars:
+    helpdeskpro_base_dir: 'C:\HelpDeskPro'
+    helpdeskpro_app_dir: '{{ helpdeskpro_base_dir }}\app'
+    helpdeskpro_log_dir: '{{ helpdeskpro_base_dir }}\logs'
+    helpdeskpro_log_file: '{{ helpdeskpro_log_dir }}\baseline.log'
+    helpdeskpro_timezone: 'W. Europe Standard Time'
+    helpdeskpro_result_log: '{{ helpdeskpro_base_dir }}\baseline_result.log'
+
+  tasks:
+    - name: Baseline with controlled error handling
+      block:
+        - name: Baseline | Ensure base directory exists
+          ansible.windows.win_file:
+            path: "{{ helpdeskpro_base_dir }}"
+            state: directory
+
+        - name: Baseline | Ensure logs directory exists
+          ansible.windows.win_file:
+            path: "{{ helpdeskpro_log_dir }}"
+            state: directory
+
+        - name: Baseline | Set timezone
+          ansible.windows.win_timezone:
+            timezone: "{{ helpdeskpro_timezone }}"
+          notify: Restart Windows time service
+
+        - name: Baseline | Write preparation log entry
+          community.windows.win_lineinfile:
+            path: '{{ helpdeskpro_log_dir }}\baseline-test.log'
+            line: >-
+              Basissetup gestartet auf {{ inventory_hostname }}
+              am {{ ansible_facts['date_time']['date'] }} {{ ansible_facts['date_time']['time'] }}.
+            # create: true
+
+      rescue:
+        - name: Rescue | Log baseline failure
+          community.windows.win_lineinfile:
+            path: "{{ helpdeskpro_result_log }}"
+            line: >-
+              FEHLER: Basissetup fehlgeschlagen auf {{ inventory_hostname }}
+              am {{ ansible_facts['date_time']['date'] }} {{ ansible_facts['date_time']['time'] }}.
+            create: true
+
+      always:
+        - name: Always | Write final result entry
+          community.windows.win_lineinfile:
+            path: "{{ helpdeskpro_result_log }}"
+            line: >-
+              Basissetup abgeschlossen auf {{ inventory_hostname }}
+              am {{ ansible_facts['date_time']['date'] }} {{ ansible_facts['date_time']['time'] }}.
+            create: true
+
+    - name: Compliance | Check if HelpDeskPro app directory exists
+      ansible.windows.win_stat:
+        path: "{{ helpdeskpro_app_dir }}"
+      register: helpdeskpro_app_dir_stat
+      check_mode: yes
+      changed_when: false
+
+    - name: Compliance | Show app directory status
+      ansible.builtin.debug:
+        msg: >
+          HelpDeskPro App-Verzeichnis existiert: {{ helpdeskpro_app_dir_stat.stat.exists }}
+
+  handlers:
+    - name: Restart Windows time service
+      ansible.windows.win_service:
+        name: w32time
+        state: restarted
+      when: allow_restarts | default(false) | bool

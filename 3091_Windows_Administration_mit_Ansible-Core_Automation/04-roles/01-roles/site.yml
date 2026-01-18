@@ -1,0 +1,7 @@
+---
+- name: HelpDeskPro Base Setup via Role
+  hosts: windows
+  gather_facts: false
+
+  roles:
+    - role: helpdeskpro_base

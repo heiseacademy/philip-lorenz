@@ -1,0 +1,61 @@
+---
+- name: Base setup for HelpDeskPro servers (with handler)
+  hosts: windows
+  gather_facts: no
+
+  vars:
+    helpdeskpro_base_dir: 'C:\HelpDeskPro'
+    helpdeskpro_app_dir: '{{ helpdeskpro_base_dir }}\app'
+    helpdeskpro_log_dir: '{{ helpdeskpro_base_dir }}\logs'
+    helpdeskpro_log_file: '{{ helpdeskpro_log_dir }}\baseline.log'
+    helpdeskpro_timezone: 'W. Europe Standard Time'
+
+  tasks:
+    - name: Baseline | Ensure base directory exists
+      ansible.windows.win_file:
+        path: "{{ helpdeskpro_base_dir }}"
+        state: directory
+      tags:
+        - baseline
+
+    - name: Baseline | Ensure logs directory exists
+      ansible.windows.win_file:
+        path: "{{ helpdeskpro_log_dir }}"
+        state: directory
+
+    - name: Baseline | Set timezone
+      ansible.windows.win_timezone:
+        timezone: "{{ helpdeskpro_timezone }}"
+      register: timezone_result
+      notify: Restart Windows time service
+
+    - name: Baseline | Write baseline preparation log entry
+      community.windows.win_lineinfile:
+        path: "{{ helpdeskpro_log_file }}"
+        line: "Server durch Basissetup vorbereitet (Zeitzone geprüft/gesetzt)"
+        create: true
+
+    - name: Compliance | Check if HelpDeskPro app directory exists
+      ansible.windows.win_stat:
+        path: "{{ helpdeskpro_app_dir }}"
+      register: helpdeskpro_app_dir_stat
+      check_mode: yes
+      changed_when: false
+
+    - name: Compliance | Show app directory status
+      ansible.builtin.debug:
+        msg: >
+          HelpDeskPro App-Verzeichnis existiert: {{ helpdeskpro_app_dir_stat.stat.exists }}
+
+    - name: Compliance | Show timezone change status
+      ansible.builtin.debug:
+        msg: >
+          Zeitzone wurde geändert: {{ timezone_result.changed | default(false) }}
+      when: timezone_result is defined
+
+  handlers:
+    - name: Restart Windows time service
+      ansible.windows.win_service:
+        name: w32time
+        state: restarted
+      when: allow_restarts | default(false) | bool

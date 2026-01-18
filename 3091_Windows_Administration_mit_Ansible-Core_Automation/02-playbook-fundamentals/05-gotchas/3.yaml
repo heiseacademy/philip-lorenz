@@ -1,0 +1,15 @@
+---
+- name: "03 - Stolperstein: Inventory Limits und Gruppen"
+  hosts: windows # Wählt theoretisch ALLE Windows-Server aus
+  gather_facts: false
+
+  tasks:
+    - name: Info-Ausgabe
+      ansible.builtin.debug:
+        msg: >
+          ACHTUNG: Dieser Task läuft gerade auf Host '{{ inventory_hostname }}'.
+          Host-Gruppen: {{ group_names }}
+    
+    - name: (Simulation) Kritische Änderung durchführen
+      ansible.builtin.debug:
+        msg: "Hier würde jetzt Software installiert werden..."

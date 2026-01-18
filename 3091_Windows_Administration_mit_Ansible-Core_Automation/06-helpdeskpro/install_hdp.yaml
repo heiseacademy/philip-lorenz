@@ -1,0 +1,14 @@
+---
+- name: "Installation HDP Enterprise"
+  hosts: hdp_appserver
+  gather_facts: yes
+  vars_files:
+    - vars/app_secrets.yaml
+    - vars/app_config.yaml
+
+  pre_tasks:
+    - name: Verbindungstest
+      ansible.windows.win_ping:
+
+  roles:
+    - role: helpdeskpro

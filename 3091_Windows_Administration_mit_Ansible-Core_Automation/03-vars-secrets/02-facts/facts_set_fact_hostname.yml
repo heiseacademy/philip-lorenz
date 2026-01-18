@@ -1,0 +1,20 @@
+- name: Fakten & set_fact über Hostname
+  hosts: windows
+  gather_facts: false
+
+  tasks:
+    - name: Fact | Hostname anzeigen
+      ansible.builtin.debug:
+        msg: "Hostname laut Ansible: {{ inventory_hostname }}"
+
+    - name: set_fact | Erkenne HelpDeskPro-Produktionshost
+      ansible.builtin.set_fact:
+        helpdeskpro_environment: >-
+          {{ 'dc' if inventory_hostname | lower | regex_search('dc') else 'non-dc' }}
+
+    - name: Ergebnis | Umgebung anzeigen
+      ansible.builtin.debug:
+        msg: >
+          {{ inventory_hostname }} wird als
+          {{ helpdeskpro_environment | upper }}
+          behandelt.

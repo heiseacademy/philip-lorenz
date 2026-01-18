@@ -1,0 +1,1 @@
+ansible-playbook -i inventory.yaml software_install.yml

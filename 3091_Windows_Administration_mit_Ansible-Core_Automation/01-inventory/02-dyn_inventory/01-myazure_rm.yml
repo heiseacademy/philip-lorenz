@@ -1,0 +1,14 @@
+plugin: azure.azcollection.azure_rm
+include_vm_resource_groups:
+  - lab-ad-setup
+auth_source: cli
+keyed_groups:
+ - key: tags.serverRole
+
+# Sorgt für saubere Namen wie "dc01" statt "dc01_9384..."
+plain_host_names: yes
+
+# Hier sagen wir Ansible: "Nutz bitte die Private IP zum Verbinden"
+# Wir nehmen die erste gefundene private IPv4 Adresse aus der Liste.
+compose:
+  ansible_host: private_ipv4_addresses[0]

@@ -1,0 +1,9 @@
+- name: "6.1 Firewall Port öffnen"
+  community.windows.win_firewall_rule:
+    name: "HelpDeskPro Web Interface"
+    localport: "{{ hdp_port }}"
+    action: allow
+    direction: in
+    protocol: tcp
+    prfiles: domain,private
+    state: present

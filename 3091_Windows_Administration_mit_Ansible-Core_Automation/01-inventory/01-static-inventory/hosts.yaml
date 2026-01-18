@@ -1,0 +1,38 @@
+all:
+  children:
+    # --- WINDOWS BEREICH ---
+    windows:
+      # Diese Variablen gelten für ALLE Gruppen unterhalb von 'windows'
+      vars:
+        ansible_connection: winrm
+        ansible_user: "labadmin@corp.contoso.local"
+        ansible_password: "P@ssw0rd1234!"
+        ansible_winrm_transport: credssp
+        ansible_winrm_scheme: http
+        ansible_port: 5985
+        ansible_winrm_server_cert_validation: ignore
+
+      # Hier definieren wir die Untergruppen
+      children:
+        domain_controllers:
+          hosts:
+            dc01:
+              ansible_host: dc01.corp.contoso.local
+        
+        app_servers:
+          hosts:
+            member-0:
+              ansible_host: member-0.corp.contoso.local
+            member-1:
+              ansible_host: member-1.corp.contoso.local
+        
+        clients:
+          hosts:
+            win11-client:
+              ansible_host: win11-client.corp.contoso.local
+
+    # --- LINUX BEREICH ---
+    admin_servers:
+      hosts:
+        debian-01:
+          ansible_connection: local

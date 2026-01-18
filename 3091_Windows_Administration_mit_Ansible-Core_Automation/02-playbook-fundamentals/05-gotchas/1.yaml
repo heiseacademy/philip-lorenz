@@ -1,0 +1,33 @@
+---
+- name: "01 - Stolperstein: Shell vs. Module (Idempotenz)"
+  hosts: windows
+  gather_facts: false
+
+  vars:
+    timezone_target: 'W. Europe Standard Time'
+
+  tasks:
+    # ---------------------------------------------------------
+    # SCHLECHT: Shell-Befehl
+    # ---------------------------------------------------------
+    # Problem: Dieser Task ist IMMER "gelb" (changed), auch wenn die
+    # Zeitzone schon stimmt. Handler würden jedes Mal feuern.
+    - name: (SCHLECHT) Zeitzone per Shell setzen
+      ansible.windows.win_shell: |
+        tzutil /s "{{ timezone_target }}"
+
+    # ---------------------------------------------------------
+    # GUT: Natives Modul
+    # ---------------------------------------------------------
+    # Vorteil: Ansible prüft erst. Ist die Zeitzone schon korrekt,
+    # bleibt der Task "grün" (ok). Handler feuern nur bei echter Änderung.
+    - name: (GUT) Zeitzone per Modul setzen
+      ansible.windows.win_timezone:
+        timezone: "{{ timezone_target }}"
+      notify: Windows-Zeitdienst neu starten
+
+  handlers:
+    - name: Windows-Zeitdienst neu starten
+      ansible.windows.win_service:
+        name: w32time
+        state: restarted

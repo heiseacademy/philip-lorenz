@@ -1,0 +1,7 @@
+---
+helpdeskpro_base_dir: "C:\\HelpDeskPro"
+helpdeskpro_timezone: "W. Europe Standard Time"
+
+helpdeskpro_app_dir: "{{ helpdeskpro_base_dir }}\\app"
+helpdeskpro_log_dir: "{{ helpdeskpro_base_dir }}\\logs"
+helpdeskpro_log_file: "{{ helpdeskpro_log_dir }}\\baseline.log"

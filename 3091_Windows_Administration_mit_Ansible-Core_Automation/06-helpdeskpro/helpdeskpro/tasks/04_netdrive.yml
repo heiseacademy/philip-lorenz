@@ -1,0 +1,23 @@
+- name: Credential
+  win_credential:
+    name: dc01
+    type: domain_password
+    username: "{{ hdp_domain_admin_user }}"
+    secret: "{{ hdp_domain_admin_password }}"
+    state: present
+  become: yes
+  become_method: runas
+  vars:
+    ansible_become_user: "{{ hdp_domain_admin_user }}" 
+    ansible_become_pass: "{{ hdp_domain_admin_password }}"
+
+- name: create a mapped drive that requires authentication
+  win_mapped_drive:
+    letter: B
+    path: \\dc01\backup
+    state: present
+  become: yes
+  become_method: runas
+  vars:
+    ansible_become_user: "{{ hdp_domain_admin_user }}"
+    ansible_become_pass: "{{ hdp_domain_admin_password }}"

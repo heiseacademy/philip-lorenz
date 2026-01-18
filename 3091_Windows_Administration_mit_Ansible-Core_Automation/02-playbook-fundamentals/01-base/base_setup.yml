@@ -1,0 +1,42 @@
+---
+- name: Base setup for HelpDeskPro servers
+  hosts: windows
+  gather_facts: no
+
+  vars:
+    helpdeskpro_base_dir: 'C:\HelpDeskPro'
+    helpdeskpro_app_dir: '{{ helpdeskpro_base_dir }}\app'
+    helpdeskpro_log_dir: '{{ helpdeskpro_base_dir }}\logs'
+    helpdeskpro_log_file: '{{ helpdeskpro_log_dir }}\baseline.log'
+    helpdeskpro_timezone: 'W. Europe Standard Time'
+
+  tasks:
+    - name: Ensure base directory exists
+      ansible.windows.win_file:
+        path: "{{ helpdeskpro_base_dir }}"
+        state: directory
+
+    - name: Ensure logs directory exists
+      ansible.windows.win_file:
+        path: "{{ helpdeskpro_log_dir }}"
+        state: directory
+
+    - name: Set timezone
+      ansible.windows.win_timezone:
+        timezone: "{{ helpdeskpro_timezone }}"
+
+    - name: Write baseline preparation log entry
+      community.windows.win_lineinfile:
+        path: "{{ helpdeskpro_log_file }}"
+        line: "Server durch Basissetup vorbereitet"
+        create: true
+
+    - name: Compliance check - HelpDeskPro base directory exists
+      ansible.windows.win_stat:
+        path: "{{ helpdeskpro_base_dir }}"
+      register: helpdeskpro_dir
+
+    - name: Show compliance result
+      ansible.builtin.debug:
+        msg: >
+          HelpDeskPro Basisverzeichnis existiert: {{ helpdeskpro_dir.stat.exists }}

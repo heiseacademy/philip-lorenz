@@ -1,0 +1,16 @@
+---
+- name: "3.1 Installationverzeichnis"
+  ansible.windows.win_file:
+    path: "{{ hdp_root_path }}"
+    state: directory
+
+- name: "3.2 Softwarepaket (ZIP) hochladen"
+  ansible.windows.win_copy:
+    src: HelpDeskPro.zip
+    dest: "C:\\Windows\\Temp\\HelpDeskPro.zip"
+
+- name: "3.3 Softwarepaket unzippen"
+  community.windows.win_unzip:
+    src: "C:\\Windows\\Temp\\HelpDeskPro.zip"
+    dest: "{{ hdp_root_path }}"
+    creates: "{{ hdp_root_path }}\\HelpDeskPro.exe"

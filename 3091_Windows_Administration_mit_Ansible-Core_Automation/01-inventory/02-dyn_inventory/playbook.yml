@@ -1,0 +1,11 @@
+---
+- name: Mini Connectivity Test
+  hosts: all
+  gather_facts: no
+  tasks:
+    - name: Ping test
+      ansible.windows.win_ping:
+
+    - name: Nachricht ausgeben
+      ansible.builtin.debug:
+        msg: "Hallo, ich bin {{ inventory_hostname }} und gehöre zur Gruppe AppServer!"

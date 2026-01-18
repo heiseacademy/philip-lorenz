@@ -1,0 +1,13 @@
+---
+- name: Compliance | Check HelpDeskPro base directory exists
+  ansible.windows.win_stat:
+    path: "{{ helpdeskpro_base_dir }}"
+  register: helpdeskpro_dir
+  check_mode: true
+  changed_when: false
+
+- name: Compliance | Show compliance result
+  ansible.builtin.debug:
+    msg: >
+      HelpDeskPro Basisverzeichnis existiert:
+      {{ helpdeskpro_dir.stat.exists }}
