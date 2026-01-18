@@ -1,0 +1,18 @@
+---
+- name: 03.03 - BAD - HelpDeskPro Lizenz-Key im Klartext
+  hosts: windows
+  gather_facts: false
+
+  vars:
+    helpdeskpro_license_key: "HDP-AAAAA-BBBBB-CCCCC-DDDDD"
+    helpdeskpro_reg_path: "HKLM:\\SOFTWARE\\HelpDeskPro"
+    helpdeskpro_reg_name: "LicenseKey"
+
+  tasks:
+    - name: BAD | Lizenz-Key in Registry setzen (Klartext)
+      ansible.windows.win_regedit:
+        path: "{{ helpdeskpro_reg_path }}"
+        name: "{{ helpdeskpro_reg_name }}"
+        data: "{{ helpdeskpro_license_key }}"
+        type: string
+        state: present

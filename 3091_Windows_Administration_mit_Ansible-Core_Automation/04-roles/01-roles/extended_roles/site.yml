@@ -1,0 +1,10 @@
+---
+- name: HelpDeskPro Base Setup via Role
+  hosts: windows
+  gather_facts: false
+
+  roles:
+    - role: helpdeskpro_base
+      vars:
+        helpdeskpro_base_dir: "D:\\Apps\\HelpDeskPro"
+        helpdeskpro_timezone: "Central Europe Standard Time"

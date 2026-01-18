@@ -1,0 +1,9 @@
+hdp_service_domain: CORP
+
+hdp_root_path: "C:\\Program Files\\HelpDeskPro"
+
+hdp_licence_key: "DEMO-XXX-TRIAL"
+
+hdp_port: 8080
+
+hdp_logs_path: "{{ hdp_root_path }}\\Logs"

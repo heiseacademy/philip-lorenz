@@ -1,0 +1,15 @@
+---
+- name: "5.1 Registry Lizenz"
+  ansible.windows.win_regedit:
+    path: HKLM:\Software\HelpDeskPro
+    name: LicenceKey
+    data: "{{ hdp_licence_key }}"
+    type: string
+    state: present
+
+- name: "5.2 Env Lizenz"
+  ansible.windows.win_environment:
+    state: present
+    name: HDP_LICENSE_KEY
+    value: "{{ hdp_licence_key }}"
+    level: machine

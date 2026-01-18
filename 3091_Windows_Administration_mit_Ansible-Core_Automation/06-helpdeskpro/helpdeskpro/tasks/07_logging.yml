@@ -1,0 +1,45 @@
+- name: "7.1 Log-Ordner anlegen"
+  ansible.windows.win_file:
+    state: directory
+    path: "{{ hdp_logs_path }}"
+
+- name: "7.2 ACL: Schreibrechte für Service Account"
+  ansible.windows.win_acl:
+    path: "{{ hdp_logs_path }}"
+    user: "{{ hdp_service_domain }}\\{{ hdp_service_user }}"
+    type: allow
+    rights: Modify
+    state: present
+
+- name: "7.3 Upload Cleanup-Script"
+  ansible.windows.win_copy:
+    src: cleanup.ps1
+    dest: "{{ hdp_root_path }}\\cleanup.ps1"
+
+
+- name: "7.4 Scheduled Task: Tägliches Log-Cleanup einrichten"
+  community.windows.win_scheduled_task:
+    name: "HelpDeskPro_Maintenance"
+    description: "Löscht alte Logs im App-Verzeichnis (Läuft unabhängig von Anmeldung)"
+    
+    # Aktion: PowerShell-Skript ausführen
+    actions:
+    - path: powershell.exe
+      # -WindowStyle Hidden verhindert, dass kurz ein Fenster aufblitzt (falls doch wer schaut)
+      arguments: "-ExecutionPolicy Bypass -WindowStyle Hidden -File \"{{ hdp_root_path }}\\cleanup.ps1\""
+    
+    # Trigger: Täglich um 03:00 Uhr nachts
+    triggers:
+    - type: daily
+      start_boundary: "2025-01-01T03:00:00"
+    
+    # Authentifizierung (User & Passwort aus dem Vault)
+    username: "{{ hdp_service_domain }}\\{{ hdp_service_user }}"
+    password: "{{ hdp_service_password }}"
+    
+    # WICHTIG: Damit er läuft, wenn keiner angemeldet ist:
+    logon_type: password   # Speichert Credentials ("Run whether user is logged on or not")
+    run_level: highest     # Admin-Rechte ("Run with highest privileges")
+    
+    state: present
+    enabled: yes

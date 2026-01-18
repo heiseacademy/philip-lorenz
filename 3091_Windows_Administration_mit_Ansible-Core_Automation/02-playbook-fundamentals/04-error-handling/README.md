@@ -1,0 +1,1 @@
+ansible-playbook -i ./inventory.yaml base_setup_block_rescue.yml

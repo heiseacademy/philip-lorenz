@@ -1,0 +1,16 @@
+---
+- name: "1.1 Windows Updates installieren"
+  ansible.windows.win_updates:
+    category_names:
+      - SecurityUpdates
+      - CriticalUpdates
+    state: installed
+    reboot: yes
+
+- name: "1.2 Installieren IIS DSC"
+  win_dsc:
+    resource_name: WindowsFeature
+    Name: '{{ item }}'
+    Ensure: Present
+  loop:
+    - Web-Server

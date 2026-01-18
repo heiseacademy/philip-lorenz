@@ -1,0 +1,20 @@
+---
+- name: "05 - Stolperstein: Fehlender Dry-Run (Check-Mode)"
+  hosts: windows
+  gather_facts: false
+
+  vars:
+    critical_dir: 'C:\ProductionData'
+
+  tasks:
+    - name: Prüfen, ob wir im Check-Mode sind
+      ansible.builtin.debug:
+        msg: "Ansible läuft im Simulations-Modus (Check Mode)"
+      when: ansible_check_mode
+
+    # Dieser Task würde im Ernstfall etwas am System ändern.
+    # Im Check-Mode zeigt Ansible nur an, was es tun WÜRDE.
+    - name: Kritischen Ordner erstellen
+      ansible.windows.win_file:
+        path: "{{ critical_dir }}"
+        state: directory

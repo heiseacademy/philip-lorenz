@@ -1,0 +1,16 @@
+---
+- name: Developer Workstation Setup mit WinGet
+  hosts: windows
+  gather_facts: true
+
+  tasks:
+    - name: Install via WinGet
+      ansible.windows.win_shell: >
+        winget install
+        --accept-package-agreements
+        --accept-source-agreements
+        --silent
+        {{ item }}
+      loop:
+        - Git.Git
+        - Microsoft.AzureCLI

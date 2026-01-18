@@ -1,0 +1,22 @@
+---
+- name: Variablen zur Laufzeit abfragen (HelpDeskPro)
+  hosts: windows
+  gather_facts: false
+
+  vars_prompt:
+    - name: helpdeskpro_target_env
+      prompt: "Für welche Umgebung läuft dieses Playbook? (dev / test / prod)"
+      private: no
+
+    - name: helpdeskpro_change_id
+      prompt: "Bitte Change- oder Ticketnummer eingeben"
+      private: yes
+
+  tasks:
+    - name: Zusammenfassung des Laufs
+      ansible.builtin.debug:
+        msg: |
+          HelpDeskPro-Playbook gestartet
+          Umgebung: {{ helpdeskpro_target_env }}
+          Change-ID: {{ helpdeskpro_change_id }}
+          Zielhost: {{ inventory_hostname }}

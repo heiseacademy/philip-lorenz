@@ -1,0 +1,18 @@
+all:
+  vars:
+    ansible_connection: winrm
+    ansible_user: "labadmin@corp.contoso.local"
+    ansible_password: "P@ssw0rd1234!"
+    ansible_winrm_transport: credssp
+    ansible_winrm_scheme: http
+    ansible_port: 5985
+    ansible_winrm_server_cert_validation: ignore
+  children:
+    windows:
+      hosts:
+        dc01:
+          ansible_host: dc01.corp.contoso.local
+    win_dev:
+      hosts:
+        dc01:
+          ansible_host: dc01.corp.contoso.local    

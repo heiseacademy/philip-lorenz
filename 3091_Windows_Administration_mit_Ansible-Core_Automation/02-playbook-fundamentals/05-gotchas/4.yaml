@@ -1,0 +1,44 @@
+---
+- name: "04 - Stolperstein: Inkonsistente Tags"
+  hosts: windows
+  gather_facts: false
+
+  vars:
+    base_dir: 'C:\TagDemo'
+    log_dir:  '{{ base_dir }}\Logs'
+
+  tasks:
+    # Szenario: Wir wollen nur die Grundkonfiguration deployen (--tags config)
+    
+    # ---------------------------------------------------------
+    # SCHLECHT: Tags vergessen
+    # ---------------------------------------------------------
+    - name: (SCHLECHT) Basis-Ordner erstellen
+      ansible.windows.win_file:
+        path: "{{ base_dir }}"
+        state: directory
+      tags: ["config"]
+
+    # Problem: Wenn man dieses Playbook mit '--tags config' startet,
+    # wird dieser Task ÜBERSPRUNGEN, weil der Tag fehlt.
+    # Das Deployment ist unvollständig/kaputt.
+    - name: (SCHLECHT) Log-Ordner erstellen (Tag vergessen!)
+      ansible.windows.win_file:
+        path: "{{ log_dir }}"
+        state: directory
+      # Hier fehlt: tags: ["config"]
+
+    # ---------------------------------------------------------
+    # GUT: Konsistente Tags
+    # ---------------------------------------------------------
+    - name: (GUT) Basis-Ordner sicherstellen
+      ansible.windows.win_file:
+        path: "{{ base_dir }}_Fixed"
+        state: directory
+      tags: ["config", "fix"]
+
+    - name: (GUT) Log-Ordner sicherstellen
+      ansible.windows.win_file:
+        path: "{{ base_dir }}_Fixed\Logs"
+        state: directory
+      tags: ["config", "fix"]

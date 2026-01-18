@@ -1,0 +1,24 @@
+---
+- name: "Phase 1: Systemvorraussetzungen"
+  ansible.builtin.include_tasks: 01_prerequisites.yml
+  tags: ["install", "prereqs"]
+- name: "Phase 2: Identity (AD)"
+  ansible.builtin.include_tasks: 02_identity.yml
+  tags: ["install", "identity"]
+- name: "Phase 3: Installieren und Dateisystem"
+  ansible.builtin.include_tasks: 03_install.yml
+  tags: ["install", "files"]
+- name: "Phase 4: Netzlaufwerk"
+  ansible.builtin.include_tasks: 04_netdrive.yml
+  tags: ["install", "netdrive"]
+- name: "Phase 5: Konfiguration"
+  ansible.builtin.include_tasks: 05_configuration.yml
+  tags: ["install", "configuration"]
+- name: "Phase 6: Netzwerk"
+  ansible.builtin.include_tasks: 06_network.yml
+  tags: ["install", "network"]
+- name: "Phase 7: Logging"
+  ansible.builtin.include_tasks: 07_logging.yml
+  tags: ["install", "logging"]
+
+

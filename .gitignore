@@ -1,0 +1,101 @@
+# =========================
+# Ansible – Runtime Artefakte
+# =========================
+
+# Temporäre Dateien
+*.retry
+*.log
+
+# Ansible Galaxy
+roles/*
+!roles/requirements.yml
+
+# Collections (falls lokal installiert)
+collections/*
+!collections/requirements.yml
+
+# =========================
+# Secrets & sensible Daten
+# =========================
+
+# Vault-Dateien (falls nicht versioniert)
+*.vault
+*.vault.yml
+*.vault.yaml
+
+# Private Keys
+*.pem
+*.key
+id_rsa
+id_rsa.pub
+
+# =========================
+# Inventories
+# =========================
+
+# Dynamische Inventory Caches
+inventory/*_cache
+inventory/*.cache
+inventory/cache/
+
+# Lokale Inventory-Varianten
+inventory/local*
+inventory/dev*
+inventory/test*
+inventory/stage*
+
+# =========================
+# Python / Virtualenv
+# =========================
+
+.venv/
+venv/
+env/
+__pycache__/
+*.pyc
+
+# =========================
+# Editor & OS
+# =========================
+
+# VS Code
+.vscode/
+*.code-workspace
+
+# IntelliJ / PyCharm
+.idea/
+
+# macOS
+.DS_Store
+
+# Windows
+Thumbs.db
+desktop.ini
+
+# =========================
+# Terraform (falls genutzt)
+# =========================
+
+.terraform/
+*.tfstate
+*.tfstate.*
+.terraform.lock.hcl
+
+# =========================
+# Misc
+# =========================
+
+# Backup-Dateien
+*.bak
+*.old
+*.orig
+
+# Temp
+tmp/
+temp/
+
+
+
+*/collections/*
+collections/*
+3091_Windows_Administration_mit_Ansible-Core_Automation/04-roles/02-reqs/collections/ansible_collections/*

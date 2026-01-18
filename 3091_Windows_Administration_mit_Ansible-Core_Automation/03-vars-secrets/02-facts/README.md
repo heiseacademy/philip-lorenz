@@ -1,0 +1,1 @@
+ansible-playbook facts_set_fact_hostname.yml -i inventory.yaml

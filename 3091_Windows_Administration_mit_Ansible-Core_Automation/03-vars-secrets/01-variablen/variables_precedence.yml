@@ -1,0 +1,14 @@
+---
+- name: Variablen-Präzedenz Demo
+  hosts: win_dev
+  gather_facts: false
+
+  # vars:
+  #   helpdeskpro_log_level: "info"
+  #   helpdeskpro_timezone: "Central Europe Standard Time"
+
+  tasks:
+    - name: Ausgabe der Variablenquellen
+      ansible.builtin.debug:
+        msg: |
+          helpdeskpro_timezone = {{ helpdeskpro_timezone }} --- helpdeskpro_log_level = {{ helpdeskpro_log_level }}

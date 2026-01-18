@@ -1,0 +1,20 @@
+---
+- name: HelpDeskPro Lizenz-Key mit Ansible Vault
+  hosts: windows
+  gather_facts: false
+
+  vars_files:
+    - group_vars/win_dev/vault.yml
+
+  vars:
+    helpdeskpro_reg_path: "HKLM:\\SOFTWARE\\HelpDeskPro"
+    helpdeskpro_reg_name: "LicenseKey"
+
+  tasks:
+    - name: OK | Lizenz-Key in Registry setzen (Secret kommt aus Vault)
+      ansible.windows.win_regedit:
+        path: "{{ helpdeskpro_reg_path }}"
+        name: "{{ helpdeskpro_reg_name }}"
+        data: "{{ helpdeskpro_license_key }}"
+        type: string
+        state: present

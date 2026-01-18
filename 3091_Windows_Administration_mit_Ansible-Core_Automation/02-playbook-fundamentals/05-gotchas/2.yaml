@@ -1,0 +1,32 @@
+---
+- name: "02 - Stolperstein: Hartkodierte Pfade vs. Variablen"
+  hosts: windows
+  gather_facts: false
+
+  vars:
+    # Zentrale Definition (Single Source of Truth)
+    base_dir: 'C:\HelpDeskPro'
+    log_dir:  '{{ base_dir }}\logs'
+    app_dir:  '{{ base_dir }}\app'
+
+  tasks:
+    # ---------------------------------------------------------
+    # SCHLECHT: Hartkodierte Pfade
+    # ---------------------------------------------------------
+    # Problem: Tippfehleranfällig und extrem schwer zu warten.
+    - name: (SCHLECHT) Ordner erstellen (Pfad fest eingetippt)
+      ansible.windows.win_file:
+        path: 'C:\HelpDeskPro\logs'
+        state: directory
+
+    # ---------------------------------------------------------
+    # GUT: Variablen nutzen
+    # ---------------------------------------------------------
+    # Vorteil: Änderst du oben 'base_dir', passt sich alles automatisch an.
+    - name: (GUT) Ordner erstellen (Variablen)
+      ansible.windows.win_file:
+        path: "{{ item }}"
+        state: directory
+      loop:
+        - "{{ log_dir }}"
+        - "{{ app_dir }}"

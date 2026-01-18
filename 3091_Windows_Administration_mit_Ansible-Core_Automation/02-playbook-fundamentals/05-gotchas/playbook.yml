@@ -1,0 +1,153 @@
+---
+- name: 02.06 - Häufige Stolpersteine beim Erstellen von Windows-Playbooks (Demo)
+  hosts: windows
+  gather_facts: false
+
+  vars:
+    helpdeskpro_base_dir: 'C:\HelpDeskPro'
+    helpdeskpro_app_dir:  '{{ helpdeskpro_base_dir }}\app'
+    helpdeskpro_log_dir:  '{{ helpdeskpro_base_dir }}\logs'
+    helpdeskpro_tmp_dir:  '{{ helpdeskpro_base_dir }}\tmp'
+    helpdeskpro_timezone: 'W. Europe Standard Time'
+
+  tasks:
+    # =====================================================================
+    # Stolperstein: Shell-Befehle statt Module (nicht idempotent)
+    # =====================================================================
+
+    # SCHLECHT: Shell → nicht idempotent, immer "changed", Handler feuern unnötig
+    - name: Stolperstein 1 (SCHLECHT) | Zeitzone per Shell setzen (nicht idempotent)
+      ansible.windows.win_shell: |
+        tzutil /s "{{ helpdeskpro_timezone }}"
+      tags:
+        - stolperstein1
+        - schlecht
+        - baseline
+
+    # GUT: Modul → idempotent, sauber prüfbar, sicher für Prod
+    - name: Stolperstein 1 (GUT) | Zeitzone per Modul setzen (idempotent)
+      ansible.windows.win_timezone:
+        timezone: "{{ helpdeskpro_timezone }}"
+      notify: Windows-Zeitdienst neu starten
+      tags:
+        - stolperstein1
+        - gut
+        - baseline
+        - maintenance
+
+    # =====================================================================
+    # Stolperstein: Hart codierte Pfade → unwartbar
+    # =====================================================================
+
+    # SCHLECHT: überall fest eingetragen → Fehler vorprogrammiert
+    - name: Stolperstein 2 (SCHLECHT) | Hart codierte Pfade (ohne Variablen)
+      ansible.windows.win_file:
+        path: "{{ item }}"
+        state: directory
+      loop:
+        - 'C:\HelpDeskPro\app'
+        - 'C:\HelpDeskPro\logs'
+        - 'C:\HelpDeskPro\tmp'
+      tags:
+        - stolperstein2
+        - schlecht
+        - baseline
+
+    # GUT: Pfade kommen aus Variablen → einmal ändern, überall richtig
+    - name: Stolperstein 2 (GUT) | Pfade per Variablen verwaltet (Best Practice)
+      ansible.windows.win_file:
+        path: "{{ item }}"
+        state: directory
+      loop:
+        - "{{ helpdeskpro_app_dir }}"
+        - "{{ helpdeskpro_log_dir }}"
+        - "{{ helpdeskpro_tmp_dir }}"
+      tags:
+        - stolperstein2
+        - gut
+        - baseline
+
+    # =====================================================================
+    # Stolperstein: Falsche Zielumgebung, weil -l nicht genutzt wurde
+    #
+    # CLI-Demo:
+    # =====================================================================
+
+    - name: Stolperstein 3 | Anzeigen, in welchen Gruppen der Host ist (Erklärung zu -l)
+      ansible.builtin.debug:
+        msg: "Host {{ inventory_hostname }} gehört zu folgenden Gruppen: {{ group_names }}"
+      tags:
+        - stolperstein3
+        - info
+
+    # =====================================================================
+    # Stolperstein: Tags nicht konsistent → halbe Konfiguration
+    # =====================================================================
+
+    # SCHLECHT: Ein Task hat baseline, der andere nicht → Teilkonfiguration
+    - name: Stolperstein 4 (SCHLECHT) | Task MIT baseline-Tag
+      ansible.windows.win_file:
+        path: "{{ helpdeskpro_base_dir }}"
+        state: directory
+      tags:
+        - stolperstein4
+        - schlecht
+        - baseline
+
+    - name: Stolperstein 4 (SCHLECHT) | Task OHNE baseline-Tag (geht verloren bei --tags baseline)
+      ansible.windows.win_file:
+        path: "{{ helpdeskpro_log_dir }}"
+        state: directory
+      tags:
+        - stolperstein4
+        - schlecht
+
+    # GUT: Beide Tasks sauber getaggt → reproduzierbar
+    - name: Stolperstein 4 (GUT) | Task 1 MIT baseline-Tag
+      ansible.windows.win_file:
+        path: "{{ helpdeskpro_base_dir }}"
+        state: directory
+      tags:
+        - stolperstein4
+        - gut
+        - baseline
+
+    - name: Stolperstein 4 (GUT) | Task 2 MIT baseline-Tag
+      ansible.windows.win_file:
+        path: "{{ helpdeskpro_log_dir }}"
+        state: directory
+      tags:
+        - stolperstein4
+        - gut
+        - baseline
+
+    # =====================================================================
+    # Stolperstein: Kein Dry-Run → Risiko für Prod
+    # =====================================================================
+
+    # „Heikler Task“ – in der Praxis vorher in Dev/Test prüfen
+    - name: Stolperstein 5 | Beispiel-Task für Dry-Run Diskussion
+      ansible.windows.win_file:
+        path: "{{ helpdeskpro_tmp_dir }}"
+        state: directory
+      tags:
+        - stolperstein5
+        - baseline
+
+    - name: Stolperstein 5 | Erklärung zur sicheren Ausführung via --check
+      ansible.builtin.debug:
+        msg: >
+          Empfehlung: ZUERST testen, dann anwenden:
+          ansible-playbook 02_06_haeufige_stolpersteine.yml -i inventory.yaml -l win_dev --check
+          und erst danach ohne --check auf win_prod ausführen.
+      tags:
+        - stolperstein5
+        - info
+
+  handlers:
+    - name: Windows-Zeitdienst neu starten
+      ansible.windows.win_service:
+        name: w32time
+        state: restarted
+      tags:
+        - maintenance

@@ -1,0 +1,21 @@
+---
+- name: "2.1 Service Account in AD anlegen"
+  microsoft.ad.user:
+    identity: "{{ hdp_service_user }}"
+    password: "{{ hdp_service_password }}"
+    state: present
+    password_never_expires: true
+    enabled: true
+    description: "Service Account für HDP (Ansible-Managed)"
+
+    domain_username: "{{ hdp_domain_admin_user }}"
+    domain_password: "{{ hdp_domain_admin_password }}"
+  delegate_to: dc01
+  run_once: true
+
+- name: "2.2 Task Scheduler Berechtigungen"
+  ansible.windows.win_user_right:
+    name: SeBatchLogonRight
+    users:
+    - "{{ hdp_service_domain }}\\{{ hdp_service_user }}"
+    action: add  
