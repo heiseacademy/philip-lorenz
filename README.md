@@ -27,6 +27,8 @@ Ich unterstütze dabei, digitale Workloads sicher, effizient und zukunftsfähig 
 
 Hier findest du die einzelnen Kursübersichten:
 
-- [3016 – Azure DevOps Essentials: Von den Basics bis zum Git-Workflow](./3016_AzureDevOpsEssentials-VonDenBasicsBisZumGit-Workflow/README.md)
-- [3022 – Azure DevOps in Aktion: Pipelines, Artifacts und Integrationsszenarien](./3022_AzureDevOpsInAktion-Pipelines_ArtifactsUndIntegrationsszenarien/README.md)
-- [3085 – Azure DevOps: Security Best Practices für Pipelines und Repositories](./3085_AzureDevOps-SecurityBestPracticesFuerPipelinesUndRepositories/README.md)
+- [Azure DevOps Essentials: Von den Basics bis zum Git-Workflow](./AzureDevOpsEssentials-VonDenBasicsBisZumGit-Workflow/README.md)
+- [Azure DevOps in Aktion: Pipelines, Artifacts und Integrationsszenarien](./AzureDevOpsInAktion-Pipelines_ArtifactsUndIntegrationsszenarien/README.md)
+- [Azure DevOps: Security Best Practices für Pipelines und Repositories](./AzureDevOps-SecurityBestPracticesFuerPipelinesUndRepositories/README.md)
+- [Windows Administration mit Ansible: Ansible Windows Basics](./Windows_Administration_mit_Ansible-Ansible_Windows_Basics/README.md)
+- [Windows Administration mit Ansible: Core Automation](./Windows_Administration_mit_Ansible-Core_Automation/README.md)
