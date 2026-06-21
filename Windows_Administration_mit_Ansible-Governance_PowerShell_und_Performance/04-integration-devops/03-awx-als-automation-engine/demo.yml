@@ -1,0 +1,7 @@
+---
+- name: AWX job template demo
+  hosts: windows
+  gather_facts: false
+  tasks:
+    - name: Confirm AWX can reach Windows target
+      ansible.windows.win_ping:

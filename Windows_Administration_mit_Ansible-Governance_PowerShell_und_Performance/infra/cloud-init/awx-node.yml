@@ -1,0 +1,120 @@
+#cloud-config
+
+package_update: true
+package_upgrade: true
+
+packages:
+  - curl
+  - git
+  - vim
+  - jq
+
+write_files:
+  # Setup-Script wird von systemd ausgeführt, damit cloud-init nicht blockiert
+  - path: /root/setup-awx.sh
+    permissions: "0755"
+    content: |
+      #!/bin/bash
+      set -euo pipefail
+      LOG=/root/awx-setup.log
+      exec >> "$LOG" 2>&1
+
+      echo "=== AWX Setup gestartet: $(date) ==="
+
+      # ── k3s installieren ──────────────────────────────────────────────────
+      curl -sfL https://get.k3s.io | sh -s - --write-kubeconfig-mode 644
+      export KUBECONFIG=/etc/rancher/k3s/k3s.yaml
+
+      echo "Warte auf k3s Node..."
+      timeout 120 bash -c \
+        'until kubectl get nodes 2>/dev/null | grep -q " Ready"; do sleep 5; done'
+      echo "k3s bereit."
+
+      # ── kustomize installieren ────────────────────────────────────────────
+      KUSTOMIZE_VERSION=5.4.2
+      curl -sL "https://github.com/kubernetes-sigs/kustomize/releases/download/kustomize%2Fv${KUSTOMIZE_VERSION}/kustomize_v${KUSTOMIZE_VERSION}_linux_amd64.tar.gz" \
+        | tar xz -C /usr/local/bin
+      echo "kustomize ${KUSTOMIZE_VERSION} installiert."
+
+      # ── AWX Operator deployen ─────────────────────────────────────────────
+      AWX_OPERATOR_VERSION=2.19.1
+      mkdir -p /root/awx-install
+
+      cat > /root/awx-install/kustomization.yaml << EOF
+      apiVersion: kustomize.config.k8s.io/v1beta1
+      kind: Kustomization
+      resources:
+        - github.com/ansible/awx-operator/config/default?ref=${AWX_OPERATOR_VERSION}
+      images:
+        - name: quay.io/ansible/awx-operator
+          newTag: ${AWX_OPERATOR_VERSION}
+        - name: gcr.io/kubebuilder/kube-rbac-proxy
+          newName: quay.io/brancz/kube-rbac-proxy
+          newTag: v0.15.0
+      namespace: awx
+      EOF
+
+      kubectl create namespace awx --dry-run=client -o yaml | kubectl apply -f -
+      kustomize build /root/awx-install | kubectl apply -f -
+
+      echo "Warte auf AWX Operator (bis zu 5 min)..."
+      timeout 300 bash -c \
+        'until kubectl -n awx get deployment awx-operator-controller-manager 2>/dev/null \
+          | grep -q "1/1"; do sleep 10; done'
+      echo "AWX Operator läuft."
+
+      # ── AWX-Instanz anlegen ───────────────────────────────────────────────
+      cat > /root/awx-install/awx-instance.yaml << 'EOF'
+      apiVersion: awx.ansible.com/v1beta1
+      kind: AWX
+      metadata:
+        name: awx
+        namespace: awx
+      spec:
+        service_type: nodeport
+        nodeport_port: 30080
+      EOF
+
+      kubectl apply -f /root/awx-install/awx-instance.yaml
+
+      echo "Warte auf AWX Web-Pod (bis zu 15 min)..."
+      timeout 900 bash -c \
+        'until kubectl -n awx get pods -l "app.kubernetes.io/name=awx-web" 2>/dev/null \
+          | grep -q "Running"; do sleep 15; done'
+
+      # ── Admin-Passwort sichern ────────────────────────────────────────────
+      AWX_PASSWORD=$(kubectl -n awx get secret awx-admin-password \
+        -o jsonpath='{.data.password}' | base64 --decode)
+      echo "$AWX_PASSWORD" > /root/AWX_ADMIN_PASSWORD
+      chmod 600 /root/AWX_ADMIN_PASSWORD
+
+      echo ""
+      echo "=== AWX bereit: $(date) ==="
+      echo "URL:      http://$(hostname -I | awk '{print $1}'):30080"
+      echo "Benutzer: admin"
+      echo "Passwort: $AWX_PASSWORD"
+      touch /root/AWX_READY
+
+  # systemd-Unit startet das Script einmalig nach dem Netzwerk
+  - path: /etc/systemd/system/awx-setup.service
+    content: |
+      [Unit]
+      Description=AWX Lab Setup (k3s + AWX Operator)
+      After=network-online.target
+      Wants=network-online.target
+      ConditionPathExists=!/root/AWX_READY
+
+      [Service]
+      Type=oneshot
+      ExecStart=/root/setup-awx.sh
+      StandardOutput=journal+console
+      RemainAfterExit=yes
+      TimeoutStartSec=1800
+
+      [Install]
+      WantedBy=multi-user.target
+
+runcmd:
+  - systemctl daemon-reload
+  - systemctl enable awx-setup.service
+  - systemctl start awx-setup.service

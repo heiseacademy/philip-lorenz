@@ -1,0 +1,7 @@
+---
+- name: Converge Windows role smoke test
+  hosts: all
+  gather_facts: false
+  tasks:
+    - name: Confirm target is reachable
+      ansible.windows.win_ping:

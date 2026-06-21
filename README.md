@@ -32,3 +32,4 @@ Hier findest du die einzelnen Kursübersichten:
 - [Azure DevOps: Security Best Practices für Pipelines und Repositories](./AzureDevOps-SecurityBestPracticesFuerPipelinesUndRepositories/README.md)
 - [Windows Administration mit Ansible: Ansible Windows Basics](./Windows_Administration_mit_Ansible-Ansible_Windows_Basics/README.md)
 - [Windows Administration mit Ansible: Core Automation](./Windows_Administration_mit_Ansible-Core_Automation/README.md)
+- [Windows Administration mit Ansible: Governance, PowerShell und Performance](./Windows_Administration_mit_Ansible-Governance_PowerShell_und_Performance/README.md)

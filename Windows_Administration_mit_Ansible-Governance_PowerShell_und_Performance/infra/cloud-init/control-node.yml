@@ -1,0 +1,60 @@
+#cloud-config
+
+package_update: true
+package_upgrade: true
+
+packages:
+  - python3-pip
+  - python3-venv
+  - python3-full
+  - git
+  - vim
+  - curl
+  - sshpass
+
+write_files:
+  # Ansible in eigenem venv – vermeidet Konflikte mit Ubuntu 24.04 PEP 668
+  - path: /etc/profile.d/ansible.sh
+    content: |
+      export PATH=/opt/ansible/bin:$PATH
+
+  # Globale ansible.cfg mit Fact-Caching-Unterstützung
+  - path: /etc/ansible/ansible.cfg
+    content: |
+      [defaults]
+      host_key_checking = False
+      fact_caching = jsonfile
+      fact_caching_connection = /tmp/ansible-fact-cache
+      fact_caching_timeout = 3600
+      collections_paths = /opt/ansible/lib/python3.12/site-packages/ansible_collections:/root/.ansible/collections
+
+      [ssh_connection]
+      pipelining = True
+
+  # Beispiel-Inventory-Template – wird durch reale IPs ersetzt
+  - path: /root/inventory-template.ini
+    content: |
+      [windows]
+      win-target ansible_host=REPLACE_WITH_WINDOWS_IP
+
+      [windows:vars]
+      ansible_connection=winrm
+      ansible_user=ansible
+      ansible_password=REPLACE_WITH_PASSWORD
+      ansible_winrm_transport=ntlm
+      ansible_winrm_server_cert_validation=ignore
+      ansible_winrm_port=5985
+
+runcmd:
+  # Ansible-venv anlegen und befüllen
+  - python3 -m venv /opt/ansible
+  - /opt/ansible/bin/pip install --upgrade pip
+  - /opt/ansible/bin/pip install ansible pywinrm requests-credssp
+  # Ansible Collections für Windows-Automatisierung
+  - /opt/ansible/bin/ansible-galaxy collection install ansible.windows community.windows
+  # PATH dauerhaft für root setzen
+  - echo 'export PATH=/opt/ansible/bin:$PATH' >> /root/.bashrc
+  # Fact-Cache-Verzeichnis
+  - mkdir -p /tmp/ansible-fact-cache
+  # Bereitschaftsmarker
+  - echo "Control node ready at $(date)" > /root/READY
