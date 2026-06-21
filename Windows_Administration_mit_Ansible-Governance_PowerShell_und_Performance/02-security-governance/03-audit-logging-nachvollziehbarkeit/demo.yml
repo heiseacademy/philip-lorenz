@@ -1,0 +1,31 @@
+---
+- name: Audit logging for privileged automation actions
+  hosts: windows
+  gather_facts: false
+  tasks:
+    - name: Ensure custom event source exists for Ansible
+      community.windows.win_eventlog:
+        name: Application
+        sources: AnsibleAutomation
+        state: present
+
+    - name: Write audit entry for this automation run
+      community.windows.win_eventlog_entry:
+        log: Application
+        source: AnsibleAutomation
+        event_id: 1000
+        entry_type: Information
+        message: "Ansible run by {{ lookup('env', 'USER') }} enforced least-privilege policy on {{ inventory_hostname }}"
+
+    - name: Read back the latest audit entries
+      ansible.windows.win_shell: |
+        Get-WinEvent -LogName Application -MaxEvents 3 |
+          Where-Object { $_.ProviderName -eq "AnsibleAutomation" } |
+          Select-Object TimeCreated, Id, Message |
+          Format-List
+      register: audit_entries
+      changed_when: false
+
+    - name: Show audit trail
+      ansible.builtin.debug:
+        var: audit_entries.stdout_lines

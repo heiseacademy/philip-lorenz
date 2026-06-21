@@ -1,0 +1,22 @@
+---
+- name: Compare win_command and win_shell
+  hosts: windows
+  gather_facts: false
+  tasks:
+    # win_command: ruft eine echte .exe direkt auf – keine Shell noetig
+    - name: Festplattenpruefung mit chkdsk (echtes Programm)
+      ansible.windows.win_command: 'chkdsk C:'
+      register: command_result
+      changed_when: false
+
+    # win_shell: Get-Service ist ein Cmdlet, keine .exe – geht nur per Shell
+    - name: Status des W32Time-Dienstes per Cmdlet
+      ansible.windows.win_shell: 'Get-Service -Name W32Time | Select-Object -ExpandProperty Status'
+      register: shell_result
+      changed_when: false
+
+    - name: Show results
+      ansible.builtin.debug:
+        msg:
+          - "win_command (chkdsk): {{ command_result.stdout_lines[0] }}"
+          - "win_shell (Get-Service): {{ shell_result.stdout | trim }}"

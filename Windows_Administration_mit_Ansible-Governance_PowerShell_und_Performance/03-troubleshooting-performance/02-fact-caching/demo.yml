@@ -1,0 +1,10 @@
+---
+- name: Demonstrate fact caching
+  hosts: windows
+  gather_facts: true
+  tasks:
+    - name: Show selected facts
+      ansible.builtin.debug:
+        msg:
+          - "Host: {{ ansible_facts['hostname'] | default('unknown') }}"
+          - "OS: {{ ansible_facts['os_name'] | default('unknown') }}"

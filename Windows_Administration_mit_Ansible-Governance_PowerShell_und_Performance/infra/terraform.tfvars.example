@@ -1,0 +1,21 @@
+# terraform.tfvars.example
+# Kopieren nach terraform.tfvars, Werte eintragen.
+# terraform.tfvars steht in .gitignore – niemals committen.
+
+# Azure Subscription ID ermitteln:
+#   az login
+#   az account show --query id -o tsv
+subscription_id = "DEINE-SUBSCRIPTION-ID"
+
+# Passwort: mind. 12 Zeichen, Groß+Klein+Zahl+Sonderzeichen
+admin_password = "P@ssw0rd1234!"
+
+# SSH Public Key für AWX-Node (cat ~/.ssh/id_ed25519.pub)
+ssh_public_key = "ssh-ed25519 AAAA... dein-key"
+
+# Optional anpassen:
+# location           = "germanywestcentral"
+# admin_username     = "ansible"
+# vm_size            = "Standard_B2s"
+# awx_vm_size        = "Standard_B4ms"
+# auto_shutdown_time = "2100"

@@ -1,0 +1,13 @@
+---
+- name: Generate controlled debug target
+  hosts: windows
+  gather_facts: false
+  tasks:
+    - name: Run a harmless command for debug output
+      ansible.windows.win_command: whoami
+      register: whoami_result
+      changed_when: false
+
+    - name: Show command result
+      ansible.builtin.debug:
+        var: whoami_result.stdout

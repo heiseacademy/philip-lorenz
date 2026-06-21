@@ -1,0 +1,8 @@
+---
+- name: Example playbook for lint pipeline
+  hosts: localhost
+  gather_facts: false
+  tasks:
+    - name: Show lint target
+      ansible.builtin.debug:
+        msg: "This playbook is used by the Azure DevOps lint demo."
